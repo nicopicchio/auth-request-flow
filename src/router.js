@@ -14,9 +14,16 @@ const mockUser = {
 };
 
 const secretKey = 'superSecret';
+const noAccessMessage = 'Access denied!';
 
 router.post('/login', (req, res) => {
-	res.json(jwt.sign({ username: mockUser.username }, secretKey));
+	if (req.body.username && req.body.password) {
+		if (req.body.username === mockUser.username && req.body.password === mockUser.password) {
+			res.status(200).json(jwt.sign({ username: mockUser.username }, secretKey));
+			return
+		}
+	}
+	res.status(401).json(noAccessMessage);
 });
 
 router.get('/profile', (req, res) => {
@@ -25,7 +32,7 @@ router.get('/profile', (req, res) => {
 		jwt.verify(token, secretKey);
 		res.status(200).json({ profile: mockUser.profile });
 	} catch (err) {
-		res.status(401).json('Who are you?');
+		res.status(401).json(noAccessMessage);
 	}
 });
 
